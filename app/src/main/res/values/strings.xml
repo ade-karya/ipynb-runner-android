@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Notebook Runner</string>
+    <string name="notification_channel_name">Eksekusi notebook</string>
+    <string name="notification_channel_description">Menampilkan status notebook yang sedang dijalankan</string>
+</resources>
