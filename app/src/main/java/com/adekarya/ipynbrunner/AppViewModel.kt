@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.adekarya.ipynbrunner.data.AppSettings
 import com.adekarya.ipynbrunner.data.RecentNotebook
 import com.adekarya.ipynbrunner.data.colab.ColabAuthException
+import com.adekarya.ipynbrunner.data.kaggle.KaggleClient
 import com.adekarya.ipynbrunner.data.model.Backend
 import com.adekarya.ipynbrunner.data.model.CellType
 import com.adekarya.ipynbrunner.data.model.ColabRunOptions
@@ -47,6 +48,8 @@ data class AppUiState(
     val run: RunState = RunState(),
     val colabSpecs: List<ColabRuntimeSpec> = emptyList(),
     val colabBusy: Boolean = false,
+    val kaggleCheck: String? = null,
+    val kaggleChecking: Boolean = false,
 ) {
     val isCurrentNotebookRunning: Boolean
         get() = run.active && currentRecent != null && run.notebookId == currentRecent.id
@@ -431,11 +434,36 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         settingsStore.setColabClientId(colabClientId)
         if (colabClientSecret.isNotBlank()) settingsStore.setColabClientSecret(colabClientSecret)
         settingsStore.setColabQuotaProject(quotaProject)
+        _state.update { it.copy(kaggleCheck = null) }
         snackbar("Pengaturan disimpan.")
+    }
+
+    fun testKaggleCredentials() {
+        val s = _state.value.settings
+        val key = settingsStore.kaggleKey()
+        if (s.kaggleUsername.isBlank() || key.isNullOrBlank()) {
+            snackbar("Isi username dan API key/token Kaggle terlebih dahulu.")
+            return
+        }
+        if (_state.value.kaggleChecking) return
+        viewModelScope.launch {
+            _state.update { it.copy(kaggleChecking = true, kaggleCheck = null) }
+            val result = runCatching { KaggleClient(s.kaggleUsername, key).checkCredentials() }
+            _state.update {
+                it.copy(
+                    kaggleChecking = false,
+                    kaggleCheck = result.fold(
+                        onSuccess = { message -> "✓ $message" },
+                        onFailure = { error -> "✗ ${friendly(error)}" },
+                    ),
+                )
+            }
+        }
     }
 
     fun clearKaggleKey() {
         settingsStore.setKaggleKey(null)
+        _state.update { it.copy(kaggleCheck = null) }
         snackbar("API key Kaggle dihapus.")
     }
 

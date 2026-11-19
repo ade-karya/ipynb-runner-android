@@ -125,7 +125,7 @@ fun SettingsScreen(
                 SettingsCard(
                     icon = Icons.Outlined.VpnKey,
                     title = "Kaggle",
-                    subtitle = "API v1 · username + API key",
+                    subtitle = "API v1 · token KGAT_ atau username + key",
                     status = if (settings.hasKaggleKey && settings.kaggleUsername.isNotBlank()) "Siap" else "Belum lengkap",
                     statusOk = settings.hasKaggleKey && settings.kaggleUsername.isNotBlank(),
                 ) {
@@ -139,9 +139,12 @@ fun SettingsScreen(
                     OutlinedTextField(
                         value = kaggleKey,
                         onValueChange = { kaggleKey = it },
-                        label = { Text("API key") },
+                        label = { Text("API key / token") },
                         placeholder = {
-                            Text(if (settings.hasKaggleKey) "Tersimpan — isi untuk mengganti" else "Tempel API key")
+                            Text(
+                                if (settings.hasKaggleKey) "Tersimpan — isi untuk mengganti"
+                                else "KGAT_… atau key legacy",
+                            )
                         },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
@@ -179,13 +182,42 @@ fun SettingsScreen(
                             Text(if (showKaggleHelp) "Tutup panduan" else "Panduan")
                         }
                     }
+                    OutlinedButton(
+                        onClick = {
+                            saveAll()
+                            viewModel.testKaggleCredentials()
+                        },
+                        enabled = !state.kaggleChecking,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        if (state.kaggleChecking) {
+                            CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                        } else {
+                            Icon(
+                                Icons.Outlined.CheckCircle,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        Text("Simpan & tes kredensial")
+                    }
+                    state.kaggleCheck?.let { result ->
+                        Text(
+                            result,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (result.startsWith("✓")) Color(0xFF4ADE80)
+                            else MaterialTheme.colorScheme.error,
+                        )
+                    }
                     if (showKaggleHelp) {
                         HelpText(
                             listOf(
-                                "Masuk ke kaggle.com, buka Settings → API, lalu klik Create New Token.",
-                                "File kaggle.json berisi username dan key. Salin keduanya ke kolom di atas.",
-                                "Username harus sama dengan pemilik kernel. Aplikasi membuat atau memperbarui kernel dengan slug yang Anda pilih.",
-                                "Jika akun memakai 2FA, API key tetap dipakai; jangan bagikan key ke siapa pun.",
+                                "Kaggle → Settings → API → Create New Token. Token baru berawalan KGAT_ dan dikirim aplikasi sebagai Bearer.",
+                                "Token KGAT_ ditempel di kolom API key/token. Username tetap diisi karena dipakai sebagai pemilik slug kernel.",
+                                "Jika memakai kredensial legacy: unduh kaggle.json, lalu isi username dan key dari file itu (Basic auth).",
+                                "Tombol Simpan & tes memanggil endpoint daftar kernel pribadi untuk memastikan kredensial benar-benar diterima.",
+                                "Jangan bagikan token/key ke siapa pun. Jika bocor, buat ulang dari halaman Settings Kaggle.",
                             ),
                         )
                     }

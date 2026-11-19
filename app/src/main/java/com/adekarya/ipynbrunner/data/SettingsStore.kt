@@ -90,7 +90,7 @@ class SettingsStore(context: Context) {
     }
 
     fun setKaggleKey(key: String?) {
-        secure.put(SECURE_KAGGLE_KEY, key?.takeIf { it.isNotBlank() })
+        secure.put(SECURE_KAGGLE_KEY, key?.trim()?.takeIf { it.isNotBlank() })
         refresh()
     }
 

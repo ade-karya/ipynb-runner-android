@@ -90,11 +90,22 @@ Konfigurasi:
 
 ## Setup Kaggle
 
-1. Masuk ke [kaggle.com](https://www.kaggle.com), buka **Settings → API**, klik **Create New Token**.
-2. File `kaggle.json` berisi `username` dan `key`. Salin keduanya ke **Pengaturan → Kaggle** di aplikasi.
-3. Pastikan akun sudah memenuhi syarat untuk GPU/internet jika opsi tersebut dipakai (misalnya verifikasi nomor telepon untuk GPU).
-4. Saat menjalankan, tentukan **judul kernel** dan **slug**. Jika kernel dengan slug tersebut belum ada, Kaggle API akan membuatnya; jika sudah ada, versi baru akan diunggah.
-5. Notebook diunggah dengan output lokal dibersihkan. Setelah selesai, aplikasi mengunduh output `.ipynb` dan mencocokkan cell berdasarkan source; jika source berubah, output dipetakan berdasarkan urutan cell kode.
+Kaggle mendukung dua bentuk kredensial. Aplikasi mendeteksinya otomatis.
+
+1. **Token baru (disarankan)** — masuk ke [kaggle.com](https://www.kaggle.com), buka **Settings → API**, lalu **Create New Token**. Token baru berawalan `KGAT_`. Tempel token tersebut di kolom **API key / token**; aplikasi mengirimnya sebagai `Authorization: Bearer`.
+2. **Kredensial legacy** — file `kaggle.json` berisi `username` dan `key`. Isi **Username Kaggle** dan **API key / token** dengan nilai dari file itu; aplikasi memakai HTTP Basic. (Seluruh isi `kaggle.json` juga boleh ditempel di kolom token.)
+3. **Username tetap wajib diisi** karena dipakai sebagai pemilik (`owner`) slug kernel, termasuk saat memakai token `KGAT_`.
+4. Tekan **Simpan & tes kredensial** untuk memanggil endpoint daftar kernel pribadi. Jika tes gagal, pesan error akan menyebut apakah token Bearer atau Basic yang ditolak.
+5. Pastikan akun sudah memenuhi syarat untuk GPU/internet jika opsi tersebut dipakai (misalnya verifikasi nomor telepon untuk GPU).
+6. Saat menjalankan, tentukan **judul kernel** dan **slug**. Jika kernel dengan slug tersebut belum ada, Kaggle API akan membuatnya; jika sudah ada, versi baru akan diunggah.
+7. Notebook diunggah dengan output lokal dibersihkan. Setelah selesai, aplikasi mengunduh output `.ipynb` dan mencocokkan cell berdasarkan source; jika source berubah, output dipetakan berdasarkan urutan cell kode.
+
+Catatan:
+
+- API key/token Kaggle memberikan akses ke akun Anda. Jangan membagikannya.
+- Kuota CPU/GPU dan batas runtime ditentukan oleh Kaggle.
+- Hanya kernel Python (`language: python`) yang didukung jalur ini.
+- Jika muncul **401**: pastikan token `KGAT_` belum kedaluwarsa dan ditempel utuh, atau gunakan username + key legacy yang benar. Spasi/newline di ujung token sudah dibersihkan otomatis.
 
 Catatan:
 

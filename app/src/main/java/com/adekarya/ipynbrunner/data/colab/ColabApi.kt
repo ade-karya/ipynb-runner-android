@@ -232,6 +232,16 @@ class ColabApi(
             try {
                 http.jsonRequest(builder.build())
             } catch (e: ApiException) {
+                if (e.statusCode == 401) {
+                    throw ApiException(
+                        e.statusCode,
+                        "Token OAuth Google ditolak (401). Putuskan akun Colab di Pengaturan → Colab, " +
+                            "lalu hubungkan ulang. Jika memakai OAuth consent \"Testing\", refresh token " +
+                            "Google biasanya kedaluwarsa setelah 7 hari.\n${e.message}",
+                        e.body,
+                        e,
+                    )
+                }
                 if (e.statusCode == 403) {
                     throw ApiException(
                         e.statusCode,

@@ -90,7 +90,7 @@ fun friendlyHttpMessage(code: Int, body: String?): String {
     }
     val base = when (code) {
         400 -> "Permintaan ditolak (400)."
-        401 -> "Autentikasi gagal. Periksa API key / token."
+        401 -> "Autentikasi gagal (401). Kaggle: token KGAT_ (Bearer) atau username + key legacy. Colab: login ulang."
         403 -> "Akses ditolak (403). Periksa izin, scope OAuth, dan quota project."
         404 -> "Resource tidak ditemukan (404). Periksa username, slug, atau nama runtime."
         409 -> "Konflik data (409)."
